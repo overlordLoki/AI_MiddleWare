@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import requests
 import json
 
 app = Flask(__name__)
+CORS(app)
 
 LLM_API_URL = 'http://localhost:11434/api/chat'
 MODEL_NAME = 'llama3'
