@@ -1,0 +1,3 @@
+curl -X POST http://localhost:9090/chat \
+     -H "Content-Type: application/json" \
+     -d '{"messages": [{"role": "user", "content": "say"}]}'
