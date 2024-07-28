@@ -1,6 +1,0 @@
-
-
-POST http://localhost:9090/api/chat
-content-type: application/json
-
-{"messages":[{"role":"user","content":"Hello"}]}

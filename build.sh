@@ -1,5 +1,3 @@
 #!/bin/bash
-
-# Navigate to the src directory and run the Go server
-cd src
-go run main.go
+source $(pyenv root)/versions/ai_middleware/bin/activate
+python app.py
