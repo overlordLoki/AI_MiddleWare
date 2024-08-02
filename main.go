@@ -1,98 +1,13 @@
 package main
 
 import (
-	"GoGo/src/types"
-	"bufio"
-	"bytes"
-	"encoding/json"
-	"io"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-	cors "github.com/rs/cors/wrapper/gin"
+	"net/http" // HTTP package
+	"github.com/gin-gonic/gin" // Gin web framework
+	cors "github.com/rs/cors/wrapper/gin" //CORs middleware
+	"GoGo/src/Direct" // Import the Direct package
 )
 
-const LLM_API_URL = "http://localhost:11434/api/chat"
-const MODEL_NAME = "llama3.1"
-
-func sendChatToLLM(messages []types.Message) (*http.Response, error) {
-	data := types.ChatRequest{
-		Model:    MODEL_NAME,
-		Messages: messages,
-		Stream:   true,
-	}
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := http.Post(LLM_API_URL, "application/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-func readLLMResponse(response *http.Response) (string, error) {
-	defer response.Body.Close()
-
-	var output string
-	reader := bufio.NewReader(response.Body)
-	for {
-		line, err := reader.ReadBytes('\n')
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return "", err
-		}
-
-		var body map[string]interface{}
-		err = json.Unmarshal(line, &body)
-		if err != nil {
-			return "", err
-		}
-		if done, ok := body["done"].(bool); ok && !done {
-			if message, ok := body["message"].(map[string]interface{}); ok {
-				if content, ok := message["content"].(string); ok {
-					output += content
-				}
-			}
-		} else {
-			break
-		}
-	}
-
-	return output, nil
-}
-
-func chat(c *gin.Context) {
-	var request struct {
-		Messages []types.Message `json:"messages"`
-	}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	response, err := sendChatToLLM(request.Messages)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	aiResponse, err := readLLMResponse(response)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	request.Messages = append(request.Messages, types.Message{Role: "assistant", Content: aiResponse})
-	c.JSON(http.StatusOK, types.ChatResponse{Response: aiResponse})
-}
-
-func basic(c *gin.Context) {
+func hello_world(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "hello world"})
 }
 
@@ -100,7 +15,7 @@ func main() {
 	router := gin.Default()
 	// Configure CORS
 	router.Use(cors.AllowAll())
-	router.GET("/", basic)
-	router.POST("/chat", chat)
+	router.GET("/", hello_world)
+	router.POST("/chat", direct.Chat)
 	router.Run("localhost:8085")
 }
