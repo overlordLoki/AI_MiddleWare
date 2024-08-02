@@ -8,13 +8,12 @@ import (
 	"io"
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"GoGo/src/config" // Import the config package
 )
 
-const LLM_API_URL = "http://localhost:11434/api/chat"
-const MODEL_NAME = "llama3.1"
 func sendChatToLLM(messages []types.Message) (*http.Response, error) {
 	data := types.ChatRequest{
-		Model:    MODEL_NAME,
+		Model:    config.Config.ModelName,
 		Messages: messages,
 		Stream:   true,
 	}
@@ -23,7 +22,7 @@ func sendChatToLLM(messages []types.Message) (*http.Response, error) {
 		return nil, err
 	}
 
-	resp, err := http.Post(LLM_API_URL, "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post(config.Config.LLMAPIURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
 	}

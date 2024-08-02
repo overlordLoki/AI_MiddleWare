@@ -11,13 +11,15 @@ import (
 	"GoGo/src/types"
 	"github.com/stretchr/testify/assert"
 	cors "github.com/rs/cors/wrapper/gin"
+	"GoGo/src/config"
+	"GoGo/src/Direct"
 )
 
 // SetupRouter sets up the Gin router for testing
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.AllowAll())
-	router.POST("/chat", chat)
+	router.POST("/chat", direct.Chat)
 	return router
 }
 
@@ -29,7 +31,7 @@ func TestChat(t *testing.T) {
 		{Role: "user", Content: "Hello, how are you?"},
 	}
 	chatRequest := types.ChatRequest{
-		Model:    MODEL_NAME,
+		Model:    config.Config.ModelName,
 		Messages: messages,
 		Stream:   true,
 	}

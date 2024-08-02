@@ -1,0 +1,6 @@
+{
+    "llm_api_url": "http://localhost:11434/api/chat",
+    "model_name": "llama3.1",
+    "port": "8085"
+  }
+  

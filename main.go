@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin" // Gin web framework
 	cors "github.com/rs/cors/wrapper/gin" //CORs middleware
 	"GoGo/src/Direct" // Import the Direct package
+	"GoGo/src/config" // Import the config package
 )
 
 func hello_world(c *gin.Context) {
@@ -12,10 +13,11 @@ func hello_world(c *gin.Context) {
 }
 
 func main() {
-	router := gin.Default()
-	// Configure CORS
-	router.Use(cors.AllowAll())
-	router.GET("/", hello_world)
-	router.POST("/chat", direct.Chat)
-	router.Run("localhost:8085")
+    config.InitConfig()
+    router := gin.Default()
+    // Configure CORS
+    router.Use(cors.AllowAll())
+    router.GET("/", hello_world)
+    router.POST("/chat", direct.Chat)
+    router.Run("localhost:" + config.Config.Port)
 }
