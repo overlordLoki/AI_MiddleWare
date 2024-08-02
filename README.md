@@ -1,25 +1,103 @@
 
-# AI Middleware Server
+# AI Middleware
 
 ## Overview
 
-This project sets up a middleware server to interact with the LLM API.
+AI Middleware is a Go application designed to interact with an AI service. It provides an HTTP API that forwards chat messages to an AI service and retrieves responses.
 
-## Running the Server
 
-To start the server, run the following script:
+## Setup
+
+### Prerequisites
+
+- Go 1.16 or later
+- An AI service running at `http://localhost:11434/api/chat`
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/AI_MiddleWare.git
+   cd AI_MiddleWare
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   go mod tidy
+   ```
+
+3. Build the application:
+
+   ```bash
+   go build -o ai_middleware main.go
+   ```
+
+## Running the Application
+
+Start the server:
 
 ```bash
-./build.sh
+./ai_middleware
 ```
 
+The server will run on `localhost:8085`.
 
-## Testing the Server
+## API Endpoints
 
-You can test the server using `curl` or Postman. Here’s an example `curl` command:
+### POST /chat
+
+Send a chat request to the AI service.
+
+**Request Body:**
+
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "your message here"
+    }
+  ]
+}
+```
+
+**Response:**
+
+```json
+{
+  "response": "AI response here"
+}
+```
+
+### GET /
+
+A simple endpoint to check if the server is running.
+
+**Response:**
+
+```json
+{
+  "message": "hello world"
+}
+```
+
+## Testing
+
+Run the unit tests with:
 
 ```bash
-curl -X POST http://localhost:9090/api/chat -H "Content-Type: application/json" -d '{"messages":[{"role":"user","content":"Hello"}]}'
+go test ./...
 ```
 
-This should return a response from the LLM API.
+To test the `/chat` endpoint, use the `test.http` file with an HTTP client like Postman or `curl`.
+
+## Deployment
+
+To deploy this application to a home server:
+
+1. Build the application as described above.
+2. Transfer the binary to your home server.
+3. Run the application on the server.
+
