@@ -21,8 +21,8 @@ func sendChatToLLM(messages []types.Message) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	resp, err := http.Post(config.Config.LLMAPIURL, "application/json", bytes.NewBuffer(jsonData))
+	url := config.Config.LLMAPIURL+"/chat"
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
 	}

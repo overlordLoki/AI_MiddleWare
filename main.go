@@ -30,6 +30,6 @@ func main() {
     // Other routes
     router.GET("/", hello_world)
     router.POST("/chat", direct.Chat)
-    
+    router.POST("/oneshot", direct.Oneshot)
     router.Run("localhost:" + config.Config.Port)
 }
