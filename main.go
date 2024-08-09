@@ -6,6 +6,8 @@ import (
 	cors "github.com/rs/cors/wrapper/gin" // CORS middleware
 	"GoGo/src/Direct" // Import the Direct package
 	"GoGo/src/config" // Import the config package
+    "GoGo/src/DeepMemory" // Import the DeepMemory package
+    g "GoGo/src/MemoryGraph" // Import the MemoryGraph package
 )
 
 func hello_world(c *gin.Context) {
@@ -14,6 +16,7 @@ func hello_world(c *gin.Context) {
 
 func main() {
     config.InitConfig()
+    g.InitGraph()
     router := gin.Default()
     
     // Configure CORS
@@ -26,10 +29,14 @@ func main() {
     router.GET("/favicon.ico", func(c *gin.Context) {
         c.File("./assets/favicon.ico")
     })
-    
+    deepmemory.InitTree()
     // Other routes
     router.GET("/", hello_world)
-    router.POST("/chat", direct.Chat)
-    router.POST("/oneshot", direct.Oneshot)
-    router.Run("localhost:" + config.Config.Port)
+    router.POST("/chat", Direct.Chat)
+    router.GET("/tree", deepmemory.GetTree)
+    router.POST("/memchat", deepmemory.MemChat)
+    router.POST("/addnode", deepmemory.AddNode)
+    if err := router.Run("localhost:" + config.Config.Port); err != nil {
+		panic(err)
+	}
 }

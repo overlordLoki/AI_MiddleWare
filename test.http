@@ -1,3 +1,8 @@
-curl -X POST http://localhost:8085/chat \
+curl -X POST http://localhost:8085/addnode \
      -H "Content-Type: application/json" \
-     -d '{"messages": [{"role": "user", "content": "hi"}]}'
+     -d '{
+           "parent_key": "0",
+           "subject": "New Subject",
+           "title": "New Title",
+           "value": "Some Value"
+         }'

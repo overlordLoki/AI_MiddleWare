@@ -19,7 +19,7 @@ import (
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.AllowAll())
-	router.POST("/chat", direct.Chat)
+	router.POST("/chat", Direct.Chat)
 	return router
 }
 

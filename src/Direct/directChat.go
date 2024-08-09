@@ -1,4 +1,4 @@
-package direct
+package Direct
 
 import (
 	"GoGo/src/types"
