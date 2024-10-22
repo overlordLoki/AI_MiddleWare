@@ -7,6 +7,8 @@ import (
 
 	"GoGo/src/config"
 	"GoGo/src/types"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Oneshot handles one-shot generation requests to the LLM API.
@@ -37,4 +39,26 @@ func Oneshot(prompt string) (string, error) {
 
 	// Return the generated text
 	return result.Response, nil
+}
+
+// api request for one-shot generation
+func SingleChat(c *gin.Context) {
+	// Get the prompt from the request
+	var request struct {
+		Prompt string `json:"prompt"`
+	}
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Generate a response using the LLM API
+	response, err := Oneshot(request.Prompt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return the generated response
+	c.JSON(http.StatusOK, gin.H{"response": response})
 }

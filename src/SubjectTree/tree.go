@@ -22,3 +22,7 @@ func NewTree(title string) *Tree {
 		Title: title,
 	}
 }
+
+func (t *Tree) MakeInitalNode(node *ChatNode) {
+	t.Root = node
+}

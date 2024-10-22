@@ -6,7 +6,44 @@ import (
 	"GoGo/src/Direct"
 	"net/http"
 	"github.com/gin-gonic/gin"
+	st "GoGo/src/SubjectTree"
+	t "GoGo/src/types"
 )
+
+
+
+//hold value of current subject and conversation
+type CurrentConversation struct {
+	Subject string
+	conversation []t.Message
+}
+
+func (c *CurrentConversation) AddMessage(role string, content string){
+	c.conversation = append(c.conversation, t.Message{Role: role, Content: content})
+}
+
+var currentConversation CurrentConversation = CurrentConversation{}
+
+func Init(){
+	InitGraph()
+	currentConversation = CurrentConversation{}
+}
+
+func NewPrompt(c *gin.Context){
+	 //get the prompt from the request
+	 var request struct {
+		Prompt string `json:"prompt"`
+	 }
+	 if err := c.BindJSON(&request); err != nil {
+		 c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		 return
+	 }
+	 //add the prompt to the current conversation
+	 currentConversation.AddMessage("User", request.Prompt)
+
+}
+
+
 	 //step 1: is still subject
 	 //	if no add new subject node to the graph
 	 // 	- then add a new Tree to the subject node
@@ -18,19 +55,6 @@ import (
 	 //step 2: get relivent data for the response
 	 // 	- then get relivent data for the response
 	 // 	- Return the response
-
-func NewPrompt(c *gin.Context){
-	 //get the prompt from the request
-	 var request struct {
-		Prompt string `json:"prompt"`
-	 }
-	 if err := c.BindJSON(&request); err != nil {
-		 c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		 return
-	 }
-
-}
-
 // handleSubject processes the prompt and assigns or creates a subject using AI.
 func HandleSubject(prompt string) (string, error) {
 	subjects := graph.GetSubjects()
@@ -51,22 +75,36 @@ func HandleSubject(prompt string) (string, error) {
 		subject := strings.Split(response, "New: ")[1]
 		// get the subject node from the graph
 		SubjectNode := graph.FindNodeBySubject(subject)
-		// add a new tree node to the subject
-		SubjectNode.AddTree(makeTreeTitle(subject, prompt))
+		// add a new tree node to the subject 
+		newTree := SubjectNode.AddTree(makeTreeTitle(subject, prompt))
+		// add a new chat node to the tree
+		newchatnode := st.NewNode("")
+		newTree.MakeInitalNode(newchatnode)
 	}
-	//if response is to add to a current subject then add it to the graph
+	//if response is to add to a current subject then check if still on the same topic
 	if strings.Contains(response, "AddTo: ") {
 		// get the subject from the response
 		subject := strings.Split(response, "AddTo: ")[1]
 		// get the subject node from the graph
 		SubjectNode := graph.FindNodeBySubject(subject)
-		//
+		// is the prompt still on the same topic
+		return SubjectNode.Subject, nil
 	}
 	//else error
 
 
 	return response, nil
 }
+
+// func isStillSubject(subject string, prompt string) bool {
+// 	//ai oneshot to check if the prompt is still on the same subject
+// 	aiPrompt := "Is the prompt still on the same topic: " + subject + "?\nPrompt: " + prompt
+// 	response, err := Direct.Oneshot(aiPrompt)
+// 	if err != nil {
+// 		return false
+// 	}
+// 	return strings.Contains(response, "Yes")
+// }
 
 func makeTreeTitle(subject string, prompt string) string {
 	//ai oneshot to make the title

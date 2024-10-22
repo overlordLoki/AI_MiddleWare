@@ -28,9 +28,9 @@ func (n *SubjectNode) AddEdge(edge *Edge) {
 	n.Edges = append(n.Edges, edge)
 }
 
-// AddTree
-func (n *SubjectNode) AddTree(title string) {
+// AddTree returns the tree that was added
+func (n *SubjectNode) AddTree(title string) *t.Tree {
 	tree := t.NewTree(title)
 	n.Trees = append(n.Trees, tree)
-
+	return tree
 }

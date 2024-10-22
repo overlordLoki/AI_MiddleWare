@@ -1,37 +1,46 @@
 package main
 
 import (
-	"net/http" // HTTP package
-	"github.com/gin-gonic/gin" // Gin web framework
-	cors "github.com/rs/cors/wrapper/gin" // CORS middleware
-	"GoGo/src/Direct" // Import the Direct package
-	"GoGo/src/config" // Import the config package
-    g "GoGo/src/MemoryGraph" // Import the MemoryGraph package
+	"GoGo/src/Direct"
+	g "GoGo/src/MemoryGraph"
+	"GoGo/src/config"
+	"net/http"
+	"github.com/gin-gonic/gin"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
+// Simple hello world handler
 func hello_world(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "hello world"})
 }
 
 func main() {
-    config.InitConfig()
-    g.InitGraph()
-    router := gin.Default()
-    
-    // Configure CORS
-    router.Use(cors.AllowAll())
-    
-    // Serve static files from the "assets" directory
-    router.Static("/assets", "./assets")
-    
-    // Handle the favicon.ico request
-    router.GET("/favicon.ico", func(c *gin.Context) {
-        c.File("./assets/favicon.ico")
-    })
-    // Other routes
-    router.GET("/", hello_world)
-    router.POST("/chat", Direct.Chat)
-    if err := router.Run("localhost:" + config.Config.Port); err != nil {
+	// Initialize configuration
+	config.InitConfig()
+	
+	// Initialize MemoryGraph (AI-related setup)
+	g.Init()
+	
+	// Create a new Gin router
+	router := gin.Default()
+	
+	// Enable CORS middleware to allow all origins
+	router.Use(cors.AllowAll())
+	
+	// Serve static files from the "assets" directory
+	router.Static("/assets", "./assets")
+	
+	// Handle favicon requests to avoid 404s in browsers
+	router.GET("/favicon.ico", func(c *gin.Context) {
+		c.File("./assets/favicon.ico")
+	})	
+	// Define your routes
+	router.GET("/", hello_world)           // Respond with "hello world"
+	router.POST("/chat", Direct.Chat)      // Handle chat requests
+	router.POST("/prompt", g.NewPrompt)    // Handle AI prompt generation
+	router.POST("/oneshot", Direct.SingleChat) // Handle one-shot chat requests
+	// Start the server on the port specified in your configuration
+	if err := router.Run("localhost:" + config.Config.Port); err != nil {
 		panic(err)
 	}
 }
